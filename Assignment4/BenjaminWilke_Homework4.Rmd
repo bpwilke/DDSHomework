@@ -1,0 +1,83 @@
+---
+title: "Homework 4"
+author: "Benjamin Wilke"
+date: "February 2, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Homework Assignment 4
+
+## Question 1
+
+Load fivethirtyeight package
+
+```{r load538, echo=TRUE}
+library("fivethirtyeight")
+```
+
+Assign 18th dataset to object df.
+
+```{r assignData, echo=TRUE}
+df <- fivethirtyeight::college_recent_grads
+```
+
+The raw data behind the story "The Economic Guide To Picking A College Major" http://fivethirtyeight.com/features/the-economic-guide-to-picking-a-college-major/
+
+Display dimsensions of df (rows x columns)
+
+```{r dimensions, echo=TRUE}
+dim(df)
+```
+
+Display column names of df
+
+```{r columnnames, echo=TRUE}
+colnames(df)
+```
+
+# Question 2
+
+Displaying column names again for some reason, also showing number of columns
+
+```{r columnnames2, echo=TRUE}
+colnames(df)
+ncol(df)
+```
+
+Generate count of each unique value in major_category (load plyr library for count function)
+
+```{r count, echo=TRUE}
+library(plyr)
+major_count <- count(df, "major_category")
+major_count
+```
+
+Plot major_category
+
+```{r plot, echo=TRUE}
+par(las=2) 
+barplot(major_count$freq, names.arg = major_count$major_category, horiz = TRUE, xlab = "Frequency of Major", ylab = "Major Category", col="blue", main = "Category of major from Carnevale et al")
+```
+
+Write fivethirtyeight data to a csv file (omitting row labels)
+
+```{r export, echo=TRUE}
+write.table(df, file = "college_recent_grads.csv", sep = ",", row.names = FALSE)
+```
+
+My GitHub repository for Doing Data Science Homework is: https://github.com/bpwilke/DDSHomework
+
+
+
+
+
+
+
+
+
+
+
