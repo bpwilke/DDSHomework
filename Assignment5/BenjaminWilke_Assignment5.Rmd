@@ -95,6 +95,13 @@ head(finalgirlsexport, 10)
 write.table(finalgirlsexport, file="finalgirlsnameexport.csv", sep=",", row.names = FALSE)
 ```
 
+# Question 4 - Upload to GitHub
+
+The RMarkdown, Codebook, and .CSV created for Question 3 can be found on GitHub at https://github.com/bpwilke/DDSHomework/tree/master/Assignment5
+
+
+
+
 
 
 

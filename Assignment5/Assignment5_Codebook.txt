@@ -1,0 +1,36 @@
+******** Codebook for Assignment 5 - Doing Data Science ************
+
+df - initial dataframe to load in yob2016.csv
+	FirstName - first name of child
+	Gender - male or female
+	AmountGiven - number of persons given the name in 2016
+
+y2016 - df removing row 212
+	FirstName - first name of child
+	Gender - male or female
+	AmountGiven - number of persons given the name in 2016
+
+y2015 - dataframe to load in yob2015.csv
+	FirstName - first name of child
+	Gender - male or female
+	AmountGiven - number of persons given the name in 2016
+
+final - merged data frame on FirstName (y2015, y2016)
+	FirstName - first name of child
+	Gender.x - male or female
+	AmountGiven.x - number of persons given the name in 2015
+	Gender.y - male or female
+	AmountGiven.y - number of persons given the name in 2016
+	Total - AmountGiven.x + Amount Given.y (total for 2015 and 2016)
+
+finalgirls - final dataframe removing all males (Gender == "M")
+	FirstName - first name of child
+	Gender.x - male or female
+	AmountGiven.x - number of persons given the name in 2015
+	Gender.y - male or female
+	AmountGiven.y - number of persons given the name in 2016
+	Total - AmountGiven.x + Amount Given.y (total for 2015 and 2016)
+
+finalgirlsexport - finalgirls dataframe only for top 10 values of Total
+	FirstName - first name of child
+	Total - total for 2015 and 2016
