@@ -12,23 +12,62 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Load Required Libraries
 
 ```{r}
+library("xml2")
 library("rvest")
-
-
+library("kableExtra")
+library("tidyr")
+library("dplyr")
 ```
 
 ## Harry Potter Cast
 
+Scrape initial data and put into a single data frame
+
 ```{r}
-cast <- url %>%
+
+url <- "http://www.imdb.com/title/tt1201607/fullcredits?ref_=tt_ql_1"  # URL of site to scrape
+
+cast <- url %>%   #scrape the table from the site
   read_html() %>%
   html_nodes(xpath='//*[@id="fullcredits_content"]/table[3]') %>%
   html_table()
 
-head(cast)
+cast <- cast[[1]] # move from list of 1 to own data frame
+actornames <- cast$X2 # extract actor names
+characternames <- cast$X4 # extract character names
 
+characternames <- gsub(" \n  \n  \n  ", " ", characternames) # replaces a funky string with a space
 
+characternames <- characternames[-c(1, 93)] # remove 1st and 93rd row
+actornames <- actornames[-c(1, 93)]  # remove 1st and 93rd row
+
+actornames <- do.call(rbind, strsplit(actornames, ' (?=[^ ]+$)', perl=TRUE)) # split actornames on last space
+
+firstname <- actornames[1:149] # store first name
+lastname <- actornames[1:149,2] # store last name
+
+harrypottercast <- data.frame(firstname, lastname, characternames) # create final data frame
+
+which(grepl("Warwick", harrypottercast$firstname))  # show mr. warwick
+harrypottercast[10,]
+
+harrypottercast <- data.frame(lapply(harrypottercast, as.character), stringsAsFactors=FALSE) #convert to strings from factors
+
+harrypottercast$characternames[harrypottercast$characternames == "Griphook /  \n            Professor Filius Flitwick"] <- "Griphook / Professor Filius Flitwick"  # fix mr. warwick 
+
+harrypottercast[10,]
+
+colnames(harrypottercast) <- c("ActorFirstName", "ActorLastName", "CharacterName") # apply better column names
+
+harrypottercast_head <- head(harrypottercast, 10) #show first 10 rows
+knitr::kable(harrypottercast_head,caption = "First 10 Rows", row.names = FALSE, "html") %>%
+  kable_styling(bootstrap_options = c("striped","hover","condensed"))
+
+harrypottercast_tail <- tail(harrypottercast, 10) #show last 10 rows
+knitr::kable(harrypottercast_tail,caption = "Last 10 Rows", row.names = FALSE, "html") %>%
+  kable_styling(bootstrap_options = c("striped","hover","condensed"))
 
 ```
 
-## Including Plots
+## SportsBall
+
