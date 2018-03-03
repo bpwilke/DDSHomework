@@ -1,0 +1,34 @@
+---
+title: "DDS Assignment 9"
+author: "Benjamin Wilke"
+date: "March 3, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Load Required Libraries
+
+```{r}
+library("rvest")
+
+
+```
+
+## Harry Potter Cast
+
+```{r}
+cast <- url %>%
+  read_html() %>%
+  html_nodes(xpath='//*[@id="fullcredits_content"]/table[3]') %>%
+  html_table()
+
+head(cast)
+
+
+
+```
+
+## Including Plots
