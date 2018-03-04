@@ -16,12 +16,12 @@ library("xml2")
 library("rvest")
 library("kableExtra")
 library("tidyr")
-library("dplyr")
+library("ggplot2")
 ```
 
 ## Harry Potter Cast
 
-Scrape initial data and put into a single data frame
+Scrape initial data, perform appropriate cleaning, and put into a single data frame for presentation.
 
 ```{r}
 
@@ -49,13 +49,13 @@ lastname <- actornames[1:149,2] # store last name
 harrypottercast <- data.frame(firstname, lastname, characternames) # create final data frame
 
 which(grepl("Warwick", harrypottercast$firstname))  # show mr. warwick
-harrypottercast[10,]
+harrypottercast[10,]  # shows Warwick's character before fixing
 
 harrypottercast <- data.frame(lapply(harrypottercast, as.character), stringsAsFactors=FALSE) #convert to strings from factors
 
 harrypottercast$characternames[harrypottercast$characternames == "Griphook /  \n            Professor Filius Flitwick"] <- "Griphook / Professor Filius Flitwick"  # fix mr. warwick 
 
-harrypottercast[10,]
+harrypottercast[10,]  # shows Warwick's character after fixing
 
 colnames(harrypottercast) <- c("ActorFirstName", "ActorLastName", "CharacterName") # apply better column names
 
@@ -70,4 +70,90 @@ knitr::kable(harrypottercast_tail,caption = "Last 10 Rows", row.names = FALSE, "
 ```
 
 ## SportsBall
+
+``` {r}
+
+url2 <- "http://www.espn.com/nba/team/stats/_/name/sa/san-antonio-spurs"
+
+shootingstats <- url2 %>%   #scrape the table from the site
+  read_html() %>%
+  html_nodes(xpath='//*[@id="my-players-table"]/div[3]/div[3]/table') %>%
+  html_table()
+
+shootingstats <- shootingstats[[1]] # reduce depth of list
+
+namestemp <- shootingstats$X1
+namestemp <- strsplit(namestemp, ', ') # split player name and position
+
+namestemp <- as.data.frame(namestemp) # convert to data frame from list for ease
+namestemp <- t(namestemp)
+
+player <- namestemp[1:20] # temp var for player
+position <- namestemp[1:20,2] # temp var for position
+
+shootingstats <- data.frame(player, position, shootingstats$X2, shootingstats$X3, shootingstats$X4, shootingstats$X5, shootingstats$X6, shootingstats$X7, shootingstats$X8, shootingstats$X9, shootingstats$X10, shootingstats$X11, shootingstats$X12, shootingstats$X13, shootingstats$X14, shootingstats$X15)
+
+row.names(shootingstats) <- NULL # get rid of funky rownames
+
+colnames(shootingstats) <- c("Player","Position","FGM","FGA","FGPercent","ThreePM","ThreePA","ThreePPercent","FTM","FTA","FTPercent","TwoPM","TwoPA","TwoPPercent","PPS","AFGPercent") # rename columne to something nices
+
+shootingstats <- shootingstats[-c(1,2,20),] # get rid of junk first rows and total
+
+sapply(shootingstats, class) # show class of each column
+
+# convert columns to appropriate class
+
+shootingstats$Player <- as.character(shootingstats$Player)
+shootingstats$Position <- as.character(shootingstats$Position)
+
+# because these numbers were stored as factors we need to convert to character first
+
+shootingstats$FGM <- as.character(shootingstats$FGM)
+shootingstats$FGA <- as.character(shootingstats$FGA)
+shootingstats$FGPercent <- as.character(shootingstats$FGPercent)
+shootingstats$ThreePM <- as.character(shootingstats$ThreePM)
+shootingstats$ThreePA <- as.character(shootingstats$ThreePA)
+shootingstats$ThreePPercent <- as.character(shootingstats$ThreePPercent)
+shootingstats$FTM <- as.character(shootingstats$FTM)
+shootingstats$FTA <- as.character(shootingstats$FTA)
+shootingstats$FTPercent <- as.character(shootingstats$FTPercent)
+shootingstats$TwoPM <- as.character(shootingstats$TwoPM)
+shootingstats$TwoPA <- as.character(shootingstats$TwoPA)
+shootingstats$TwoPPercent <- as.character(shootingstats$TwoPPercent)
+shootingstats$PPS <- as.character(shootingstats$PPS)
+shootingstats$AFGPercent <- as.character(shootingstats$AFGPercent)
+
+# now we can convert to numeric
+
+shootingstats$FGM <- as.numeric(shootingstats$FGM)
+shootingstats$FGA <- as.numeric(shootingstats$FGA)
+shootingstats$FGPercent <- as.numeric(shootingstats$FGPercent)
+shootingstats$ThreePM <- as.numeric(shootingstats$ThreePM)
+shootingstats$ThreePA <- as.numeric(shootingstats$ThreePA)
+shootingstats$ThreePPercent <- as.numeric(shootingstats$ThreePPercent)
+shootingstats$FTM <- as.numeric(shootingstats$FTM)
+shootingstats$FTA <- as.numeric(shootingstats$FTA)
+shootingstats$FTPercent <- as.numeric(shootingstats$FTPercent)
+shootingstats$TwoPM <- as.numeric(shootingstats$TwoPM)
+shootingstats$TwoPA <- as.numeric(shootingstats$TwoPA)
+shootingstats$TwoPPercent <- as.numeric(shootingstats$TwoPPercent)
+shootingstats$PPS <- as.numeric(shootingstats$PPS)
+shootingstats$AFGPercent <- as.numeric(shootingstats$AFGPercent)
+
+sapply(shootingstats, class) # show class of each column again to verify that they were changed correctly
+
+shootingstats_table <- head(shootingstats, 17) #show player stats table
+knitr::kable(shootingstats_table,caption = "Shooting Statistics", row.names = FALSE, "html") %>%
+  kable_styling(bootstrap_options = c("striped","hover","condensed"))
+
+plotdata <- data.frame(shootingstats$Player, shootingstats$FGPercent, shootingstats$Position)
+
+
+ggplot(data=shootingstats, aes(x=reorder(Player, FGPercent), y=FGPercent, fill=Position)) +
+  geom_bar(stat='identity', color='black') +
+  xlab("Player") + ylab("Field Goal Percentage") +
+  ggtitle("Field Goal Percentages per Game") + 
+  coord_flip()
+```
+
 
