@@ -1,0 +1,19 @@
+---
+title: "DDS Assignment 10"
+author: "Benjamin Wilke"
+date: "March 17, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Mental Health Clinics
+
+```{r, echo=TRUE}
+
+
+
+```
+

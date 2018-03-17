@@ -1,0 +1,52 @@
+---
+title: "Assignment 10 Prelive"
+author: "Benjamin Wilke"
+date: "March 10, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(ggplot2)
+
+```
+
+## Load Data and Display Raw Data
+
+```{r}
+
+day4 <- read.csv("nyt4.csv", header=TRUE, sep=",")
+head(day4)
+str(day4)
+
+```
+
+## Create new Age Groups and CTR (Click-thru-Rate)
+
+```{r}
+
+day4$AgeGroup <- cut(day4$Age, c(-Inf, 18, 24, 34, 44, 54, 64, Inf))
+levels(day4$AgeGroup) <- c("<18", "18-24", "25-34", "35-44", "45-54", "55-64", "65+")
+
+day4$CTR <- day4$Clicks / day4$Impressions
+
+str(day4)
+
+```
+
+## Plots
+
+Impressions by Age Groups
+
+```{r}
+
+ggplot(data=day4, aes(x=AgeGroup, y=Impressions)) +
+  geom_bar(stat='identity', color='black', fill='light green') +
+  ylab("Number of Impressions") + xlab("Age Group") +
+  ggtitle("Number of Impressions by Age Group")
+
+
+
+
+```
