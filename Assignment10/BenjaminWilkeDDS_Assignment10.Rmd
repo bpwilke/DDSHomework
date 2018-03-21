@@ -107,7 +107,7 @@ Keep the legend—you should have four regions and therefore four colors.
 ```{r, echo=TRUE}
 
 
-ggplot(data=VAMCStatesMilesFreq, aes(reorder(State, VAMCperMSQM), VAMCperMSQM, fill=VAMCStatesMilesFreq$Region)) + geom_bar(stat='identity') + ggtitle("VA Medical Center Frequency per 1000 Sq. Miles by State") + theme(plot.title = element_text(hjust = 0.5)) + xlab("State") + ylab("Frequency per 1000 Sq Miles") + coord_flip() + guides(fill=guide_legend(title="Region"))
+ggplot(data=VAMCStatesMilesFreq, aes(reorder(State, VAMCperMSQM), VAMCperMSQM, fill=VAMCStatesMilesFreq$Region)) + geom_bar(stat='identity') + ggtitle("VA Medical Center Frequency per 1000 Sq. Miles by State") + theme(plot.title = element_text(hjust = 0.5)) + xlab("State") + ylab("Frequency per 1000 Sq Miles") + coord_flip() + guides(fill=guide_legend(title="Region")) + scale_fill_brewer(palette="PuOr", direction=1)
 
 
 ```
