@@ -7,13 +7,123 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+library("kableExtra")
+library("ggplot2")
 ```
 
 ## Mental Health Clinics
 
+Please create code which lists the State abbreviations without their counts, one abbreviation per State value. It does not have to in data frame format. A vector is fine.
+
 ```{r, echo=TRUE}
 
+load(file = "N-MHSS-2015-DS0001-data-r.rda")
+
+# show unique values of factor LST
+stateAbbrev <- unique(mh2015_puf$LST)
+
+knitr::kable(stateAbbrev,caption = "Unique State Abbreviations", row.names = FALSE, "html") %>%
+  kable_styling(bootstrap_options = c("striped","hover","condensed"))
+
+```
+
+Filter the data.frame from 1A. We are only interested in the Veterans Administration (VA) medical centers in the mainland United States—create a listing of counts of these centers by state, including only mainland locations. Alaska, Hawaii, and U.S. territories should be omitted. DC, while not a state, is in the mainland, so it should remain included. Convert this to data.frame()
+
+```{r, echo=TRUE}
+
+#strange whitespace characters in state (LST) need to be removed
+mh2015_puf$LST <- trimws(mh2015_puf$LST)
+
+# remove non0mainland states and territories
+hospitalMainland <- mh2015_puf[mh2015_puf$LST != "AK" & mh2015_puf$LST != "HI" & mh2015_puf$LST != "AS" & mh2015_puf$LST != "GU" & mh2015_puf$LST != "PR" & mh2015_puf$LST != "VI",]
+
+# convert LST back into a factor
+hospitalMainland$LST <- as.factor(hospitalMainland$LST)
+
+# show new unique values of factor LST with counts
+new_statecount <- table(hospitalMainland$LST)
+new_statecount <- data.frame(new_statecount)
+
+colnames(new_statecount) <- c("State", "Frequency")
+
+knitr::kable(new_statecount,caption = "VA Medical Center Counts by State Excluding non-Mainland States and Territories", row.names = FALSE, "html") %>%
+  kable_styling(bootstrap_options = c("striped","hover"))
 
 
 ```
+
+Create a ggplot barchart of this filtered data set. Vary the bar’s colors by what State it has listed. Give it an appropriately professional title that is centered. Make sure you have informative axis labels. The State axis should be readable, not layered over each other. You’re welcome to have a legend or not.
+
+```{r, echo=TRUE}
+
+ggplot(data=new_statecount, aes(State, Frequency, fill=new_statecount$State)) + geom_bar(stat='identity') + ggtitle("VA Medical Center Counts by State") + theme(plot.title = element_text(hjust = 0.5)) + guides(fill=guide_legend(title="State")) + coord_flip()
+
+```
+
+## Cleaning and Bringing in New Features
+
+This graph (above) might be somewhat misleading, as bigger states may have more hospitals, but could be more sparsely located. Read statesize.csv into your R environment. This contains essentially a vector of square miles for each state. In trying to merge it with your data.frame() from 1C, you find that they don’t match. Use paste() on your LST column in 1C to see what the matter is, and write what you observe in a comment.
+
+```{r, echo=TRUE}
+statemiles <- read.csv("statesize.csv", header = TRUE)
+
+knitr::kable(statemiles,caption = "States with Square Miles", row.names = FALSE, "html") %>%
+  kable_styling(bootstrap_options = c("striped","hover"))
+
+```
+
+I've already corrected the whitespace characters in the first section (which I think is what this prompt is getting at).. proceeding to merge.
+
+Correct the problem with the LST column using any method in R that is programmatic and easily understandable. Once you have made these state abbreviations identical to statesize.csv’s Abbrev column, merge the data.frame() from 1C and statesize.csv in order to add size information.
+
+Calculate a new variable in your combined data.frame() which indicates the VA hospitals per thousand square miles.
+
+```{r, echo=TRUE}
+
+# merge data frames
+
+VAMCStatesMilesFreq <- merge(new_statecount, statemiles, by.x="State", by.y="Abbrev") 
+
+# create new feature that is number of VA medical centers per square thousand miles
+
+VAMCStatesMilesFreq$VAMCperMSQM <- VAMCStatesMilesFreq$Frequency / (VAMCStatesMilesFreq$SqMiles / 1000)
+
+knitr::kable(VAMCStatesMilesFreq,caption = "States with Frequencies and Square Miles", row.names = FALSE, "html") %>%
+  kable_styling(bootstrap_options = c("striped","hover"))
+
+```
+
+Create another ggplot which considers the VAs per square thousand miles, rather than just frequency.
+
+Make sure the State axis is readable, like before. Change the title and axes as appropriate.
+
+Modify the ggplot syntax to make your bars in descending order (there are StackOverflow topics for this, and I have demonstrated how in Live Coding in prior classes).
+
+Color-code the bars based on Region (see the merged data.frame)—however, change the color scheme from the default. Any set of colors is fine, so long as it is readable.
+
+Keep the legend—you should have four regions and therefore four colors.
+
+```{r, echo=TRUE}
+
+
+ggplot(data=VAMCStatesMilesFreq, aes(reorder(State, VAMCperMSQM), VAMCperMSQM, fill=VAMCStatesMilesFreq$Region)) + geom_bar(stat='identity') + ggtitle("VA Medical Center Frequency per 1000 Sq. Miles by State") + theme(plot.title = element_text(hjust = 0.5)) + xlab("State") + ylab("Frequency per 1000 Sq Miles") + coord_flip() + guides(fill=guide_legend(title="Region"))
+
+
+```
+
+What patterns do you see? By this metric, is there any region that seems relatively high for VA medical centers per thousand square miles? How about low? Given these data, what advice might you give your boss before you start modeling (and why)?
+
+ 
+The northeast is clearly heavily populated with VA medical centers per 1,000 square miles. Alternatively, the west is sparsely populated with VA medical centers. The midwest seems to have some states with a high number of centers, and some states with a low number of centers. My recommnendation would be to look at parts of the midwest and the west, but since some of these states are quite large - we need to ensure that a new location makes sense to the populaltion of near by cities.
+
+
+
+
+
+
+
+
+
+
 
